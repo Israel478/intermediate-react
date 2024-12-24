@@ -22,6 +22,12 @@ export default function Layout(){
           >
             Contact
           </Link>
+          <Link
+            to="/regestration"
+            className="text-white  hover:underline hover:font-semibold"
+          >
+            Regestration
+          </Link>
         </nav>
         <Outlet/>
       </>
