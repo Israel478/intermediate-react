@@ -1,119 +1,187 @@
-// src/RegistrationForm.jsx
+import React, { useState } from "react";
+import '../App.css';
 
-import React, { useState } from 'react';
-
-const RegistrationForm = () => {
+const regestration = () => {
   const [formData, setFormData] = useState({
-    firstName: '',
-    middleName: '',
-    lastName: '',
-    email: '',
-    password: ''
+    firstName: "",
+    middleName: "",
+    lastName: "",
+    email: "",
+    password: "",
   });
-  const [users, setUsers] = useState([]);
 
-  const handleInputChange = (e) => {
+  const [errors, setErrors] = useState({});
+  const [registeredUsers, setRegisteredUsers] = useState([]);
+
+  // Handle form input changes
+  const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
+  // Validate form input values
+  const validateForm = () => {
+    const newErrors = {};
+
+    const { firstName, middleName, lastName, email, password } = formData;
+
+    // First Name validation
+    if (!firstName.trim()) {
+      newErrors.firstName = "First name is required";
+    }
+
+    // Last Name validation
+    if (!lastName.trim()) {
+      newErrors.lastName = "Last name is required";
+    }
+
+    // Email validation
+    if (!email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = "Email is invalid";
+    }
+
+    // Password validation
+    if (!password.trim()) {
+      newErrors.password = "Password is required";
+    } else if (password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters long";
+    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}/.test(password)) {
+      newErrors.password = "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character";
+    }
+
+    // Middle Name (optional but can't contain only spaces)
+    if (middleName.trim() && !middleName.trim().length) {
+      newErrors.middleName = "Middle name cannot be just spaces";
+    }
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0; // Return true if no errors
+  };
+
+  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
-    setUsers([...users, formData]);  // Add the new user to the list
-    setFormData({ firstName: '', middleName: '', lastName: '', email: '', password: '' }); // Reset form
+
+    if (validateForm()) {
+      // Add new user to registered users list
+      setRegisteredUsers((prevList) => [
+        ...prevList,
+        { ...formData, id: Date.now() }
+      ]);
+      
+      // Clear the form
+      setFormData({
+        firstName: "",
+        middleName: "",
+        lastName: "",
+        email: "",
+        password: "",
+      });
+
+      alert("Form submitted successfully!");
+    }
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-semibold text-center mb-6">Register</h1>
-
-      {/* Registration Form */}
-      <form onSubmit={handleSubmit} className="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-md">
+    <div className="container">
+      <h2 className="text-2xl font-bold text-center mb-6">Registration Form</h2>
+      <form onSubmit={handleSubmit}>
         <div className="mb-4">
-          <label htmlFor="firstName" className="block text-gray-700">First Name</label>
+          <label className="form-label" htmlFor="firstName">First Name</label>
           <input
             type="text"
             id="firstName"
             name="firstName"
             value={formData.firstName}
-            onChange={handleInputChange}
-            required
-            className="w-full p-2 border border-gray-300 rounded mt-2"
+            onChange={handleChange}
+            className="form-input"
           />
+          {errors.firstName && <p className="error-message">{errors.firstName}</p>}
         </div>
-        
+
         <div className="mb-4">
-          <label htmlFor="middleName" className="block text-gray-700">Middle Name</label>
+          <label className="form-label" htmlFor="middleName">Middle Name</label>
           <input
             type="text"
             id="middleName"
             name="middleName"
             value={formData.middleName}
-            onChange={handleInputChange}
-            className="w-full p-2 border border-gray-300 rounded mt-2"
+            onChange={handleChange}
+            className="form-input"
           />
+          {errors.middleName && <p className="error-message">{errors.middleName}</p>}
         </div>
 
         <div className="mb-4">
-          <label htmlFor="lastName" className="block text-gray-700">Last Name</label>
+          <label className="form-label" htmlFor="lastName">Last Name</label>
           <input
             type="text"
             id="lastName"
             name="lastName"
             value={formData.lastName}
-            onChange={handleInputChange}
-            required
-            className="w-full p-2 border border-gray-300 rounded mt-2"
+            onChange={handleChange}
+            className="form-input"
           />
+          {errors.lastName && <p className="error-message">{errors.lastName}</p>}
         </div>
 
         <div className="mb-4">
-          <label htmlFor="email" className="block text-gray-700">Email</label>
+          <label className="form-label" htmlFor="email">Email</label>
           <input
             type="email"
             id="email"
             name="email"
             value={formData.email}
-            onChange={handleInputChange}
-            required
-            className="w-full p-2 border border-gray-300 rounded mt-2"
+            onChange={handleChange}
+            className="form-input"
           />
+          {errors.email && <p className="error-message">{errors.email}</p>}
         </div>
 
         <div className="mb-4">
-          <label htmlFor="password" className="block text-gray-700">Password</label>
+          <label className="form-label" htmlFor="password">Password</label>
           <input
             type="password"
             id="password"
             name="password"
             value={formData.password}
-            onChange={handleInputChange}
-            required
-            className="w-full p-2 border border-gray-300 rounded mt-2"
+            onChange={handleChange}
+            className="form-input"
           />
+          {errors.password && <p className="error-message">{errors.password}</p>}
         </div>
 
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white p-2 rounded mt-4 hover:bg-blue-600"
+          className="w-full bg-blue-500 text-white py-2 px-4 rounded"
         >
           Register
         </button>
       </form>
 
-      {/* Registered Users List */}
       <div className="mt-8">
-        <h2 className="text-2xl font-semibold">Registered Users</h2>
-        <ul className="list-disc pl-6">
-          {users.map((user, index) => (
-            <li key={index} className="mt-2">
-              {user.firstName} {user.middleName && `${user.middleName} `}{user.lastName} - {user.email}
-            </li>
-          ))}
+        <h3 className="text-xl font-bold">Registered Users</h3>
+        <ul className="mt-4">
+          {registeredUsers.length === 0 ? (
+            <p>No users registered yet.</p>
+          ) : (
+            registeredUsers.map((user) => (
+              <li key={user.id} className="mb-2">
+                <p><strong>{user.firstName} {user.middleName} {user.lastName}</strong></p>
+                <p>Email: {user.email}</p>
+              </li>
+            ))
+          )}
         </ul>
       </div>
     </div>
   );
 };
 
-export default RegistrationForm;
+export default regestration ;
